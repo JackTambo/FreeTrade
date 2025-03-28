@@ -4,8 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trade Website</title>
+
+  <!-- External CSS link -->
+  <link rel="stylesheet" href="style.css" />
+  
+  <!-- Square Payment Library -->
+  <script type="module" src="https://js.squareup.com/v2/paymentform"></script>
 </head>
 <body>
+  <!-- Square Payment Form -->
+  <div id="paymentForm">
+    <!-- Add your Square payment form here (not fully functional without back-end) -->
+  </div>
+
   <!-- Trade Form -->
   <form id="tradeForm">
     <input type="text" id="tradeTitle" placeholder="Trade Title" required />
@@ -40,6 +51,7 @@
     const tradeForm = document.getElementById("tradeForm");
     const tradeContainer = document.getElementById('tradeDisplay');
 
+    // Handle Trade Form Submission
     tradeForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -48,24 +60,27 @@
       const image = document.getElementById("tradeImage").value;
 
       try {
+        // Submit Trade to Firestore
         await addDoc(collection(db, "trades"), {
           title: title,
           description: description,
           imageURL: image || "",
-          createdAt: new Date()
+          createdAt: new Date() // Timestamp
         });
+
         alert("Trade submitted successfully!");
-        fetchTrades();
+        fetchTrades(); // Refresh displayed trades
       } catch (e) {
         console.error("Error adding document: ", e);
       }
     });
 
+    // Fetch and Display Trades
     async function fetchTrades() {
       const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
 
-      tradeContainer.innerHTML = "";
+      tradeContainer.innerHTML = ""; // Clear existing trades
 
       querySnapshot.forEach((doc) => {
         const trade = doc.data();
@@ -80,8 +95,42 @@
     }
 
     window.onload = function () {
-      fetchTrades();
+      fetchTrades(); // Fetch trades on page load
     };
   </script>
+
+  <!-- Square Payment Processing Script (Sample, needs back-end for full functionality) -->
+  <script>
+    // Sample Square Payment Script
+    const paymentForm = new SqPaymentForm({
+      applicationId: "sandbox-sq0idb-xxxxxxxxxxxxxxxxxxxxxxxxxx",
+      inputClass: 'sq-input',
+      autoBuild: false, // Allows for manual integration
+
+      // Payment form options like fields, etc.
+      cardNumber: {
+        elementId: 'card-number',
+        placeholder: 'Card Number'
+      },
+      cvv: {
+        elementId: 'cvv',
+        placeholder: 'CVV'
+      },
+      expirationDate: {
+        elementId: 'expiration-date',
+        placeholder: 'MM/YY'
+      },
+
+      // Additional configurations like callbacks and form submission
+    });
+
+    // Submit the payment form when the user clicks 'Submit'
+    function handlePaymentSubmit(event) {
+      event.preventDefault();
+
+      paymentForm.requestCardNonce();
+    }
+  </script>
+
 </body>
 </html>
