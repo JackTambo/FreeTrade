@@ -1,29 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Automated Trade</title>
-        <link rel="stylesheet" href="style.css">
-        <script type="text/javascript" src="https://js.squareup.com/v2/paymentform"></script>
-    </head>
-    <body>
-        <header>
-            <h1>Welcome to Automated Trade</h1>
-            <p>Trade items while keeping your address private!</p>
-            <button id="startTradeButton">Start a Trade</button>
-        </header>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Trade</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://js.squareup.com/v2/paymentform"></script>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Automated Trade</h1>
+        <p>Trade items privately and securely!</p>
+    </header>
 
-        <div id="payment-form" style="display: none;">
-            <div id="square-payment-form">
-                <button id="paymentButton">Pay for Trade</button>
-            </div>
+    <!-- Trade Form -->
+    <section id="trade-form">
+        <h2>Start a Trade</h2>
+        <form id="tradeInfoForm">
+            <label for="title">Item Title:</label>
+            <input type="text" id="title" placeholder="Enter title of your item" required>
+
+            <label for="description">Item Description:</label>
+            <textarea id="description" placeholder="Describe your item" required></textarea>
+
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" accept="image/*">
+
+            <button type="submit">Submit Trade</button>
+        </form>
+    </section>
+
+    <!-- Display Submitted Trade Info -->
+    <section id="tradeDisplay" style="display: none;">
+        <h2>Your Trade</h2>
+        <div id="tradeDetails"></div>
+    </section>
+
+    <!-- Payment Form -->
+    <div id="payment-form" style="display: none;">
+        <div id="square-payment-form">
+            <button id="paymentButton">Pay for Trade</button>
         </div>
+    </div>
 
-        <footer>
-            Created by You | Powered by GitHub Pages
-        </footer>
+    <footer>
+        Created by You | Powered by GitHub Pages
+    </footer>
 
-        <script src="main.js"></script>
-    </body>
+    <script src="main.js"></script>
+</body>
 </html>
