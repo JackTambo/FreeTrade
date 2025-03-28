@@ -1,52 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automated Trade</title>
-    <link rel="stylesheet" href="styles.css">
-    <script type="text/javascript" src="https://js.squareup.com/v2/paymentform"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade Website</title>
 </head>
 <body>
-    <header>
-        <h1>Welcome to Automated Trade</h1>
-        <p>Trade items privately and securely!</p>
-    </header>
+  <!-- Trade Form -->
+  <form id="tradeForm">
+    <input type="text" id="tradeTitle" placeholder="Trade Title" required />
+    <textarea id="tradeDescription" placeholder="Trade Description" required></textarea>
+    <input type="text" id="tradeImage" placeholder="Image URL (optional)" />
+    <button type="submit">Submit Trade</button>
+  </form>
 
-    <!-- Trade Form -->
-    <section id="trade-form">
-        <h2>Start a Trade</h2>
-        <form id="tradeInfoForm">
-            <label for="title">Item Title:</label>
-            <input type="text" id="title" placeholder="Enter title of your item" required>
+  <!-- Display Trades -->
+  <div id="tradeDisplay">
+    <!-- Trades will appear here -->
+  </div>
 
-            <label for="description">Item Description:</label>
-            <textarea id="description" placeholder="Describe your item" required></textarea>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
 
-            <label for="image">Upload Image:</label>
-            <input type="file" id="image" accept="image/*">
+    const firebaseConfig = {
+      apiKey: "AIzaSyBShc5x6ieYsSxpapSonKtaO3155JcePDY",
+      authDomain: "mousetrade-f22a7.firebaseapp.com",
+      projectId: "mousetrade-f22a7",
+      storageBucket: "mousetrade-f22a7.firebasestorage.app",
+      messagingSenderId: "1017407105933",
+      appId: "1:1017407105933:web:fd17cee438c229e093abc4",
+      measurementId: "G-9X0L2ZPSJY"
+    };
 
-            <button type="submit">Submit Trade</button>
-        </form>
-    </section>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    <!-- Display Submitted Trade Info -->
-    <section id="tradeDisplay" style="display: none;">
-        <h2>Your Trade</h2>
-        <div id="tradeDetails"></div>
-    </section>
+    const tradeForm = document.getElementById("tradeForm");
+    const tradeContainer = document.getElementById('tradeDisplay');
 
-    <!-- Payment Form -->
-    <div id="payment-form" style="display: none;">
-        <div id="square-payment-form">
-            <button id="paymentButton">Pay for Trade</button>
-        </div>
-    </div>
+    tradeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    <footer>
-        Created by You | Powered by GitHub Pages
-    </footer>
+      const title = document.getElementById("tradeTitle").value;
+      const description = document.getElementById("tradeDescription").value;
+      const image = document.getElementById("tradeImage").value;
 
-    <script src="main.js"></script>
+      try {
+        await addDoc(collection(db, "trades"), {
+          title: title,
+          description: description,
+          imageURL: image || "",
+          createdAt: new Date()
+        });
+        alert("Trade submitted successfully!");
+        fetchTrades();
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    });
+
+    async function fetchTrades() {
+      const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+
+      tradeContainer.innerHTML = "";
+
+      querySnapshot.forEach((doc) => {
+        const trade = doc.data();
+        const tradeElement = document.createElement('div');
+        tradeElement.innerHTML = `
+          <h3>${trade.title}</h3>
+          <p>${trade.description}</p>
+          ${trade.imageURL ? `<img src="${trade.imageURL}" alt="${trade.title}" />` : ''}
+        `;
+        tradeContainer.appendChild(tradeElement);
+      });
+    }
+
+    window.onload = function () {
+      fetchTrades();
+    };
+  </script>
 </body>
 </html>
