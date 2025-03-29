@@ -43,12 +43,16 @@
 
     <script>
         const students = {
-            seb: { name: 'Seb Llyod', photo: '/seb.png', description: 'Enthusiastic about making the chat engaging for everyone.' },
+            seb: { name: 'Seb Llyod', photo: '/Seb.png', description: 'Enthusiastic about making the chat engaging for everyone.' },
             indi: { name: 'Indi Carlier', photo: '/indi.jpg', description: 'Dedicated to creating a positive and friendly chat space.' }
         };
 
         function showDetails(id) {
             const student = students[id];
+            if (!student) {
+                alert('Student not found!');
+                return;
+            }
             document.getElementById('catalogue').style.display = 'none';
             document.getElementById('details').style.display = 'block';
             document.getElementById('details-content').innerHTML = `
