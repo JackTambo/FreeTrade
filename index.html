@@ -1,136 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trade Website</title>
-
-  <!-- External CSS link -->
-  <link rel="stylesheet" href="styles.css" />
-  
-  <!-- Square Payment Library -->
-  <script type="module" src="https://js.squareup.com/v2/paymentform"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6B Group Chat Captain</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background-color: #f3f3f3; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 20px; font-size: 2.5rem; color: #333; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); text-align: center; }
+        .card img { width: 100%; height: auto; border-radius: 15px; }
+        .card h2 { margin-top: 10px; font-size: 1.5rem; }
+        .card button { margin-top: 10px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 25px; cursor: pointer; }
+        .card button:hover { background-color: #0056b3; }
+        .details { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .back-button { margin-top: 20px; padding: 10px 20px; background-color: #ff4d4d; color: white; border: none; border-radius: 25px; cursor: pointer; }
+        .back-button:hover { background-color: #cc0000; }
+    </style>
 </head>
 <body>
-  <!-- Square Payment Form -->
-  <div id="paymentForm">
-    <!-- Add your Square payment form here (not fully functional without back-end) -->
-  </div>
 
-  <!-- Trade Form -->
-  <form id="tradeForm">
-    <input type="text" id="tradeTitle" placeholder="Trade Title" required />
-    <textarea id="tradeDescription" placeholder="Trade Description" required></textarea>
-    <input type="text" id="tradeImage" placeholder="Image URL (optional)" />
-    <button type="submit">Submit Trade</button>
-  </form>
+    <h1>Candidate Catalog</h1>
 
-  <!-- Display Trades -->
-  <div id="tradeDisplay">
-    <!-- Trades will appear here -->
-  </div>
+    <div class="grid" id="catalogue">
+        <div class="card" onclick="showDetails('seb')">
+            <img src="/seb.jpg" alt="Seb Llyod">
+            <h2>Seb Llyod</h2>
+            <button>See Details</button>
+        </div>
+        <div class="card" onclick="showDetails('indi')">
+            <img src="/indi.jpg" alt="Indi Carlier">
+            <h2>Indi Carlier</h2>
+            <button>See Details</button>
+        </div>
+    </div>
 
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    <div id="details" style="display:none;">
+        <div class="details" id="details-content"></div>
+        <button class="back-button" onclick="goBack()">Go Back</button>
+    </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBShc5x6ieYsSxpapSonKtaO3155JcePDY",
-      authDomain: "mousetrade-f22a7.firebaseapp.com",
-      projectId: "mousetrade-f22a7",
-      storageBucket: "mousetrade-f22a7.firebasestorage.app",
-      messagingSenderId: "1017407105933",
-      appId: "1:1017407105933:web:fd17cee438c229e093abc4",
-      measurementId: "G-9X0L2ZPSJY"
-    };
+    <script>
+        const students = {
+            seb: { name: 'Seb Llyod', photo: '/seb.jpg', description: 'Enthusiastic about making the chat engaging for everyone.' },
+            indi: { name: 'Indi Carlier', photo: '/indi.jpg', description: 'Dedicated to creating a positive and friendly chat space.' }
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        function showDetails(id) {
+            const student = students[id];
+            document.getElementById('catalogue').style.display = 'none';
+            document.getElementById('details').style.display = 'block';
+            document.getElementById('details-content').innerHTML = `
+                <img src="${student.photo}" alt="${student.name}" style="width:100%;border-radius:15px;">
+                <h2>${student.name}</h2>
+                <p>${student.description}</p>
+            `;
+        }
 
-    const tradeForm = document.getElementById("tradeForm");
-    const tradeContainer = document.getElementById('tradeDisplay');
-
-    // Handle Trade Form Submission
-    tradeForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const title = document.getElementById("tradeTitle").value;
-      const description = document.getElementById("tradeDescription").value;
-      const image = document.getElementById("tradeImage").value;
-
-      try {
-        // Submit Trade to Firestore
-        await addDoc(collection(db, "trades"), {
-          title: title,
-          description: description,
-          imageURL: image || "",
-          createdAt: new Date() // Timestamp
-        });
-
-        alert("Trade submitted successfully!");
-        fetchTrades(); // Refresh displayed trades
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
-    });
-
-    // Fetch and Display Trades
-    async function fetchTrades() {
-      const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-
-      tradeContainer.innerHTML = ""; // Clear existing trades
-
-      querySnapshot.forEach((doc) => {
-        const trade = doc.data();
-        const tradeElement = document.createElement('div');
-        tradeElement.innerHTML = `
-          <h3>${trade.title}</h3>
-          <p>${trade.description}</p>
-          ${trade.imageURL ? `<img src="${trade.imageURL}" alt="${trade.title}" />` : ''}
-        `;
-        tradeContainer.appendChild(tradeElement);
-      });
-    }
-
-    window.onload = function () {
-      fetchTrades(); // Fetch trades on page load
-    };
-  </script>
-
-  <!-- Square Payment Processing Script (Sample, needs back-end for full functionality) -->
-  <script>
-    // Sample Square Payment Script
-    const paymentForm = new SqPaymentForm({
-      applicationId: "sandbox-sq0idb-xxxxxxxxxxxxxxxxxxxxxxxxxx",
-      inputClass: 'sq-input',
-      autoBuild: false, // Allows for manual integration
-
-      // Payment form options like fields, etc.
-      cardNumber: {
-        elementId: 'card-number',
-        placeholder: 'Card Number'
-      },
-      cvv: {
-        elementId: 'cvv',
-        placeholder: 'CVV'
-      },
-      expirationDate: {
-        elementId: 'expiration-date',
-        placeholder: 'MM/YY'
-      },
-
-      // Additional configurations like callbacks and form submission
-    });
-
-    // Submit the payment form when the user clicks 'Submit'
-    function handlePaymentSubmit(event) {
-      event.preventDefault();
-
-      paymentForm.requestCardNonce();
-    }
-  </script>
+        function goBack() {
+            document.getElementById('catalogue').style.display = 'grid';
+            document.getElementById('details').style.display = 'none';
+        }
+    </script>
 
 </body>
 </html>
